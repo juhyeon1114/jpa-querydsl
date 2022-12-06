@@ -16,5 +16,6 @@ public class Hello {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+
 }
 
