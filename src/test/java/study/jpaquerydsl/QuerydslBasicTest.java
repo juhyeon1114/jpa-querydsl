@@ -15,19 +15,20 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import study.jpaquerydsl.dto.MemberDto;
-import study.jpaquerydsl.dto.QMemberDto;
-import study.jpaquerydsl.dto.UserDto;
+import study.jpaquerydsl.dto.*;
 import study.jpaquerydsl.entity.Member;
 import study.jpaquerydsl.entity.QMember;
 import study.jpaquerydsl.entity.Team;
+import study.jpaquerydsl.repository.MemberJpaRepository;
 
 import java.util.List;
 
 import static com.querydsl.jpa.JPAExpressions.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.springframework.util.StringUtils.hasText;
 import static study.jpaquerydsl.entity.QMember.*;
 import static study.jpaquerydsl.entity.QTeam.team;
 
@@ -42,6 +43,9 @@ public class QuerydslBasicTest {
     EntityManagerFactory emf;
 
     JPAQueryFactory queryFactory;
+
+    @Autowired
+    MemberJpaRepository memberJpaRepository;
 
     @BeforeEach
     public void before() {
@@ -623,6 +627,20 @@ public class QuerydslBasicTest {
 
         em.flush();
         em.clear();
+    }
+
+    @Test
+    public void searchTest() {
+        MemberSearchCondition condition = new MemberSearchCondition();
+        condition.setAgeGoe(35);
+        condition.setAgeLoe(40);
+        condition.setTeamName("teamB");
+
+        List<MemberTeamDto> result1 = memberJpaRepository.searchByBuilder(condition);
+        assertThat(result1).extracting("username").containsExactly("member4");
+
+        List<MemberTeamDto> result2 = memberJpaRepository.search(condition);
+        assertThat(result2).extracting("username").containsExactly("member4");
     }
 
 }
